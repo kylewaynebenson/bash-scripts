@@ -1,3 +1,9 @@
+# Zip All Fonts
+# Created by Kyle Wayne Benson
+
+# Notes: edit the fontname variable on line 8 to be your folder name. Make sure there are no spaces in your folder name.
+# This script needs to be in a directory named docs next to the folder filled with fonts that you're referencing.
+
 cd ..
 
 fontname=MaritimeChampion
