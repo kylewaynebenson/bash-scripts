@@ -1,0 +1,26 @@
+#!/bin/sh
+cd ..
+
+for FILE in */*.otf; do
+	FONT=${FILE##*/}
+	DIR=${FILE%/*}
+	TYPE=${FONT##*.}
+	NAME=${FONT%.*}
+	FAMILY=${FONT%-*}
+	pyftsubset $FILE --unicodes-file=/Users/kbenson/Fonts/docs/subset.txt --layout-features-='kern' --glyph-names --symbol-cmap --legacy-cmap --notdef-glyph --notdef-outline --recommended-glyphs --name-IDs='*' --name-legacy --name-languages='*' --recalc-bounds --output-file=/Users/kbenson/Fonts/docs/VeryCool-TrialFonts/$NAME.$TYPE
+	echo ${FONT} Subset
+done
+for MODFILE in docs/VeryCool-TrialFonts/*.otf; do
+	FONT=${MODFILE##*/}
+	TYPE=${FONT##*.}
+	NAME=${FONT%.*}
+	STYLE=${NAME##*-}
+	ttx -t name $MODFILE
+	sed -e "s/"${STYLE}"/Trial "${STYLE}"/g" ${MODFILE%.???}.ttx > ${MODFILE%.???}-Trial.ttx
+	ttx -m $MODFILE ${MODFILE%.???}-Trial.ttx
+	rm ${MODFILE%.???}.otf
+	rm -f ${MODFILE%.???}.ttx ${MODFILE%.???}-Trial.ttx
+	${FONT} Complete
+done
+cd docs
+zip -r VeryCool-TrialFonts.zip VeryCool-TrialFonts
