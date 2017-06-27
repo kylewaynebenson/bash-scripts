@@ -42,7 +42,7 @@ for FILE in $fontname/*.otf
 
 	echo "@font-face {
 	font-family: '${FAMILY}';
-	font-weight: '${FONTWEIGHT}';
+	font-weight: ${FONTWEIGHT};
 	src: url('../type/${family}/${FONTNAME}.eot'); /* IE9 */
 	src: url('../type/${family}/${FONTNAME}.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
 		url('../type/${family}/${FONTNAME}.woff2') format('woff2'),
