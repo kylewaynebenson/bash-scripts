@@ -1,12 +1,12 @@
 #!/bin/sh
 cd ..
 
+timestamp=$(date +%y%m)
+
 for FILE in */*.otf; do
 	FONT=${FILE##*/}
-	DIR=${FILE%/*}
 	TYPE=${FONT##*.}
 	NAME=${FONT%.*}
-	FAMILY=${FONT%-*}
 	pyftsubset $FILE --unicodes-file=/Users/kbenson/Fonts/docs/subset.txt --layout-features-='kern' --glyph-names --symbol-cmap --legacy-cmap --notdef-glyph --notdef-outline --recommended-glyphs --name-IDs='*' --name-legacy --name-languages='*' --recalc-bounds --output-file=/Users/kbenson/Fonts/docs/VeryCool-TrialFonts/$NAME.$TYPE
 	echo ${FONT} Subset
 done
@@ -15,12 +15,25 @@ for MODFILE in docs/VeryCool-TrialFonts/*.otf; do
 	TYPE=${FONT##*.}
 	NAME=${FONT%.*}
 	STYLE=${NAME##*-}
+	FAMILY=${FONT%%-*}
+	#Take file name and add spaces where uppercase
+	sed 's/\([^[:blank:]]\)\([[:upper:]]\)/\1 \2/g' <<< "${FAMILY}" > "${MODFILE%.???}".txt
+	sed ':a;N;$!ba;s/\n/ /g' ${MODFILE%.???}.txt > ${MODFILE%.???}-noline.txt
+	#Turn spaced file name into variable
+	FILECONTENTS=`cat ${MODFILE%.???}.txt`
+	#Delete file that sed created
+	rm ${MODFILE%.???}.txt ${MODFILE%.???}-noline.txt
+	#Dump font name tables
 	ttx -t name $MODFILE
-	sed -e "s/"${STYLE}"/Trial "${STYLE}"/g" ${MODFILE%.???}.ttx > ${MODFILE%.???}-Trial.ttx
+	# #Use sed again to find and replace in name tables font name with font name + Trial
+	sed -e "s:$FILECONTENTS:$FILECONTENTS Trial:g" ${MODFILE%.???}.ttx > ${MODFILE%.???}-Trial.ttx
+	# #Use ttx to fuse new nametable
 	ttx -m $MODFILE ${MODFILE%.???}-Trial.ttx
+	#Remove original font file
 	rm ${MODFILE%.???}.otf
+	#Remove name table files
 	rm -f ${MODFILE%.???}.ttx ${MODFILE%.???}-Trial.ttx
-	${FONT} Complete
+	echo ${FONT} Complete
 done
 cd docs
-zip -r VeryCool-TrialFonts.zip VeryCool-TrialFonts
+zip -r ${timestamp}_VeryCool_TrialFonts.zip VeryCool-TrialFonts
